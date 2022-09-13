@@ -34,7 +34,10 @@
 -- die ervoor zorgt dat alleen 'M' of 'V' als geldige waarde wordt
 -- geaccepteerd. Test deze regel en neem de gegooide foutmelding op als
 -- commentaar in de uitwerking.
-
+ALTER TABLE medewerkerstabel
+    ADD geslacht CHAR(1)
+    ADD CONSTRAINT 'm_geslacht_chk' CHECK (geslacht='M' OR geslacht='V')
+;
 
 -- S1.2. Nieuwe afdeling
 --
@@ -43,18 +46,36 @@
 -- nieuwe medewerker A DONK aangenomen. Hij krijgt medewerkersnummer 8000
 -- en valt direct onder de directeur.
 -- Voeg de nieuwe afdeling en de nieuwe medewerker toe aan de database.
+INSERT INTO afdelingen (naam, locatie, hoofd)
+    VALUES ('ONDERZOEK', 'ZWOLLE', 8000)
 
+INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm, afd)
+    VALUES ('8000', 'DONK', 'A', 'LEIDEND ONDERZOEKER', 7839)
 
 -- S1.3. Verbetering op afdelingentabel
 --
 -- We gaan een aantal verbeteringen doorvoeren aan de tabel `afdelingen`:
 --   a) Maak een sequence die afdelingsnummers genereert. Denk aan de beperking
 --      dat afdelingsnummers veelvouden van 10 zijn.
+
+// -- BRON: https://www.tutorialsteacher.com/sqlserver/sequence
+CREATE SEQUENCE 'afdelingen_sequence'
+    AS INT
+    START WITH 40
+    INCREMENT BY 10
 --   b) Voeg een aantal afdelingen toe aan de tabel, maak daarbij gebruik van
 --      de nieuwe sequence.
+    INSERT INTO afdelingen (anr, naam, locatie, hoofd)
+    VALUES
+    (NEXT VALUE FOR afdelingen_sequence, 'OnderZeers', 'ZeeLand', 8000),
+    (NEXT VALUE FOR afdelingen_sequence, 'Mijnen', 'Groningen', 8000),
+    (NEXT VALUE FOR afdelingen_sequence, 'Vliegtuigen', 'Lelystad', 8000),
+
 --   c) Op enig moment gaat het mis. De betreffende kolommen zijn te klein voor
 --      nummers van 3 cijfers. Los dit probleem op.
-
+ALTER TABLE `afdelingen`
+    ALTER COLUMN 'anr' DROP CHECK 'a_anr_chk'
+    ALTER COLUMN 'anr' ADD CONSTRAINT 'numeric' CHECK (anr >= 0 AND anr <= 999)
 
 -- S1.4. Adressen
 --
@@ -68,13 +89,28 @@
 --    einddatum     moet na de ingangsdatum liggen
 --    telefoon      10 cijfers, uniek
 --    med_mnr       FK, verplicht
-
+CREATE TABLE 'adressen' (
+    postcode varchar(6) PRIMARY KEY CHECK (LENGTHB(postcode) = 6),
+    huisnummer PRIMARY KEY,
+    ingangsdatum date PRIMARY KEY,
+    einddatum date CHECK (einddatum > ingangsdatum), --moet na de ingangsdatum liggen
+    telefoon numeric UNIQUE CHECK (LENGTHB(telefoon) = 10),
+    med_mnr numeric FK NOT NULL,
+)
 
 -- S1.5. Commissie
 --
 -- De commissie van een medewerker (kolom `comm`) moet een bedrag bevatten als de medewerker een functie als
 -- 'VERKOPER' heeft, anders moet de commissie NULL zijn. Schrijf hiervoor een beperkingsregel. Gebruik onderstaande
 -- 'illegale' INSERTs om je beperkingsregel te controleren.
+
+    ALTER TABLE medewerkers
+        ADD CONSTRAINT 'commissie_verkopers' CHECK (
+        IF (functie = 'VERKOPER') THEN
+            ALTER COLUMN 'comm' ADD CONSTRAINT 'commissie_verk' NOT NULL END IF;
+        IF (functie != 'VERKOPER') THEN
+            SET COLUMN 'comm' = NULL;
+        )
 
 INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
 VALUES (8001, 'MULLER', 'TJ', 'TRAINER', 7566, '1982-08-18', 2000, 500);
