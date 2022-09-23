@@ -31,14 +31,14 @@
 --
 -- Geef code en omschrijving van alle cursussen die precies vier dagen duren.
 -- DROP VIEW IF EXISTS s2_1; CREATE OR REPLACE VIEW s2_1 AS                                                     -- [TEST]
-SELECT code, omschrijving FROM cursussen WHERE lengte = 4
+SELECT code, omschrijving FROM cursussen WHERE lengte = 4;
 
 -- S2.2. Medewerkersoverzicht
 --
 -- Geef alle informatie van alle medewerkers, gesorteerd op functie,
 -- en per functie op leeftijd (van jong naar oud).
 -- DROP VIEW IF EXISTS s2_2; CREATE OR REPLACE VIEW s2_2 AS                                                     -- [TEST]
-SELECT * from medewerkers ORDER BY functie, gbdatum
+SELECT * from medewerkers ORDER BY functie, gbdatum;
 
 -- S2.3. Door het land
 --
