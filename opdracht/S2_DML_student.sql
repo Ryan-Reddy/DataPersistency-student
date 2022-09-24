@@ -121,7 +121,7 @@ UPDATE medewerkers SET maandsal = (maandsal*1.07)
 DELETE FROM medewerkers WHERE mnr = 7654;
 -- Zijn collega Alders heeft ook plannen om te vertrekken. Verwijder ook zijn gegevens.
 -- Waarom lukt dit (niet)?
-DETAIL:  Key (mnr)=(7499) is still referenced from table "inschrijvingen".
+-- DETAIL:  Key (mnr)=(7499) is still referenced from table "inschrijvingen".
 
 -- S2.11. Nieuwe afdeling
 --
