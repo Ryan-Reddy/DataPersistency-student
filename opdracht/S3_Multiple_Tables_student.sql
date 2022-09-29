@@ -30,7 +30,13 @@
 -- Produceer een overzicht van alle cursusuitvoeringen; geef de
 -- code, de begindatum, de lengte en de naam van de docent.
 -- DROP VIEW IF EXISTS s3_1; CREATE OR REPLACE VIEW s3_1 AS                                                     -- [TEST]
-
+SELECT code, begindatum, lengte, medw.naam
+FROM cursussen AS cursus
+         JOIN uitvoeringen AS uitv
+              ON cursus.code = uitv.cursus
+         JOIN medewerkers as medw
+              ON uitv.docent = medw.mnr
+ORDER BY begindatum;
 
 -- S3.2.
 -- Geef in twee kolommen naast elkaar de achternaam van elke cursist (`cursist`)

@@ -34,7 +34,7 @@
 -- die ervoor zorgt dat alleen 'M' of 'V' als geldige waarde wordt
 -- geaccepteerd. Test deze regel en neem de gegooide foutmelding op als
 -- commentaar in de uitwerking.
-ALTER TABLE medewerkerstabel ADD geslacht CHAR(1) CONSTRAINT "m_geslacht_chk" CHECK (geslacht='M' OR geslacht='V');
+ALTER TABLE medewerkers ADD geslacht CHAR(1) CONSTRAINT "m_geslacht_chk" CHECK (geslacht='M' OR geslacht='V');
 
 -- S1.2. Nieuwe afdeling
 --
