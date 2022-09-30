@@ -43,11 +43,11 @@ ALTER TABLE medewerkers ADD geslacht CHAR(1) CONSTRAINT "m_geslacht_chk" CHECK (
 -- nieuwe medewerker A DONK aangenomen. Hij krijgt medewerkersnummer 8000
 -- en valt direct onder de directeur.
 -- Voeg de nieuwe afdeling en de nieuwe medewerker toe aan de database.
-INSERT INTO afdelingen (naam, locatie, hoofd)
-VALUES ('ONDERZOEK', 'ZWOLLE', 8000);
+INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal)
+VALUES (8000, 'DONK', 'A', 'MANAGER', 7839, '1973-09-21', 2500);
 
-INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm, afd)
-VALUES ('8000', 'DONK', 'A', 'LEIDEND ONDERZOEKER', 7839);
+INSERT INTO afdelingen (anr, naam, locatie, hoofd)
+VALUES (50, 'ONDERZOEK', 'ZWOLLE', 8000);
 
 -- S1.3. Verbetering op afdelingentabel
 --
@@ -56,18 +56,24 @@ VALUES ('8000', 'DONK', 'A', 'LEIDEND ONDERZOEKER', 7839);
 --      dat afdelingsnummers veelvouden van 10 zijn.
 
 -- BRON: https://www.tutorialsteacher.com/sqlserver/sequence
+
 CREATE SEQUENCE "afdelingen_sequence"
-    AS INT
-    START WITH 40
-    INCREMENT BY 10;
+    INCREMENT 10
+    MINVALUE 10
+--     MAXVALUE 90
+    START 60
+    OWNED BY afdelingen.anr;
+-- DROP SEQUENCE "afdelingen_sequence"
+
+
 --   b) Voeg een aantal afdelingen toe aan de tabel, maak daarbij gebruik van
 --      de nieuwe sequence.
+-- INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 VALUES
---     (NEXT VALUE FOR afdelingen_sequence, 'OnderZeers', 'ZeeLand', 8000),
-('OnderZeers', 'ZeeLand', 8000),
-('Mijnen', 'Groningen', 8000),
-('Vliegtuigen', 'Lelystad', 8000);
+(nextval('afdelingen_sequence'), 'ONDERZEEERS', 'ZEELAND', 8000),
+(nextval('afdelingen_sequence'), 'MIJNEN', 'GRONINGEN', 8000),
+(nextval('afdelingen_sequence'), 'VLIEGTUIGEN', 'LELYSTAD', 8000);
 
 --   c) Op enig moment gaat het mis. De betreffende kolommen zijn te klein voor
 --      nummers van 3 cijfers. Los dit probleem op.
@@ -88,32 +94,32 @@ ALTER TABLE afdelingen ADD CONSTRAINT "numeric" CHECK (anr >= 0 AND anr <= 999);
 --    telefoon      10 cijfers, uniek
 --    med_mnr       FK, verplicht
 CREATE TABLE adressen (
-                          postcode varchar(6) PRIMARY KEY CHECK (LENGTH(postcode) = 6),
-                          huisnummer int PRIMARY KEY,
-                          ingangsdatum date PRIMARY KEY,
+                          postcode varchar(6) CHECK (LENGTH(postcode) = 6),
+                          huisnummer int,
+                          ingangsdatum date,
                           einddatum date CHECK (einddatum > ingangsdatum), -- moet na de ingangsdatum liggen
-                          telefoon numeric UNIQUE CHECK (LENGTH(telefoon) = 10),
-                          CONSTRAINT med_mnr
-                              FOREIGN KEY (mnr)
-                                  REFERENCES medewerker(mnr)
+                          telefoon varchar UNIQUE CHECK (LENGTH(telefoon) = 10),
+                          CONSTRAINT primary_key_adressen PRIMARY KEY (postcode, huisnummer, ingangsdatum),
+                          CONSTRAINT med_mnr FOREIGN KEY (mnr) REFERENCES medewerkers(mnr),
+                          CONSTRAINT check_datums CHECK (ingangsdatum < einddatum)
 );
 
 -- S1.5. Commissie
 --
 -- De commissie van een medewerker (kolom `comm`) moet een bedrag bevatten als de medewerker een functie als
--- 'VERKOPER' heeft, anders moet de commissie NULL zijn. Schrijf hiervoor een beperkingsregel. Gebruik onderstaande
--- 'illegale' INSERTs om je beperkingsregel te controleren.
+-- 'VERKOPER' heeft, anders moet de commissie NULL zijn. Schrijf hiervoor een beperkingsregel.
 
 ALTER TABLE medewerkers
-
     ADD CONSTRAINT commissie_verkopers
-        CHECK ((functie = VERKOPER AND comm IS NOT NULL) OR (functie != VERKOPER AND comm IS NULL));
+        CHECK ((functie = 'VERKOPER' AND comm IS NOT NULL) OR (functie != 'VERKOPER' AND comm IS NULL));
 
-INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
-VALUES (8001, 'MULLER', 'TJ', 'TRAINER', 7566, '1982-08-18', 2000, 500);
 
-INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
-VALUES (8002, 'JANSEN', 'M', 'VERKOPER', 7698, '1981-07-17', 1000, NULL);
+-- Gebruik onderstaande
+-- 'illegale' INSERTs om je beperkingsregel te controleren.
+-- INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
+-- VALUES
+--     (8001, 'MULLER', 'TJ', 'TRAINER', 7566, '1982-08-18', 2000, 500),
+--     (8002, 'JANSEN', 'M', 'VERKOPER', 7698, '1981-07-17', 1000, NULL);
 
 
 

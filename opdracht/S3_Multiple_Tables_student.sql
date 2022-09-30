@@ -42,6 +42,12 @@ ORDER BY begindatum;
 -- Geef in twee kolommen naast elkaar de achternaam van elke cursist (`cursist`)
 -- van alle S02-cursussen, met de achternaam van zijn cursusdocent (`docent`).
 -- DROP VIEW IF EXISTS s3_2; CREATE OR REPLACE VIEW s3_2 AS                                                     -- [TEST]
+SELECT customer_name
+from inschrijvingen
+WHERE cursus = 'S02';
+
+SELECT customer_name
+    from customers WHERE customer_id = 7000;
 
 
 -- S3.3.
