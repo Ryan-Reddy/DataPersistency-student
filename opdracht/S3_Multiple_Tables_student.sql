@@ -42,12 +42,18 @@ ORDER BY begindatum;
 -- Geef in twee kolommen naast elkaar de achternaam van elke cursist (`cursist`)
 -- van alle S02-cursussen, met de achternaam van zijn cursusdocent (`docent`).
 -- DROP VIEW IF EXISTS s3_2; CREATE OR REPLACE VIEW s3_2 AS                                                     -- [TEST]
-SELECT customer_name
-from inschrijvingen
-WHERE cursus = 'S02';
 
-SELECT customer_name
-    from customers WHERE customer_id = 7000;
+SELECT cursist, code, medewerkers.naam as docent
+from inschrijvingen
+         JOIN cursussen
+              ON inschrijvingen.cursus = cursussen.code
+         JOIN uitvoeringen
+              ON cursussen.code = uitvoeringen.cursus
+         JOIN medewerkers
+              ON uitvoeringen.docent = medewerkers.mnr
+WHERE cursussen.code = 'S02'
+;
+
 
 
 -- S3.3.
@@ -55,38 +61,60 @@ SELECT customer_name
 -- afdeling (`hoofd`).
 -- DROP VIEW IF EXISTS s3_3; CREATE OR REPLACE VIEW s3_3 AS                                                     -- [TEST]
 
+SELECT afd.naam AS afdeling, afd.locatie, mdw.naam AS hoofd
+FROM afdelingen AS afd
+         JOIN medewerkers AS mdw
+              ON afd.hoofd = mdw.mnr;
+
 
 -- S3.4.
 -- Geef de namen van alle medewerkers, de naam van hun afdeling (`afdeling`)
 -- en de bijbehorende locatie.
 -- DROP VIEW IF EXISTS s3_4; CREATE OR REPLACE VIEW s3_4 AS                                                     -- [TEST]
 
+SELECT mdw.naam, afdelingen.naam AS afdeling, afdelingen.locatie AS locatie
+FROM medewerkers AS mdw
+         JOIN afdelingen AS afdelingen
+              ON mdw.afd = afdelingen.anr;
 
 -- S3.5.
 -- Geef de namen van alle cursisten die staan ingeschreven voor de cursus S02 van 12 april 2019
 -- DROP VIEW IF EXISTS s3_5; CREATE OR REPLACE VIEW s3_5 AS                                                     -- [TEST]
 
+SELECT voorl, naam
+FROM inschrijvingen
+         JOIN medewerkers
+              ON medewerkers.mnr = inschrijvingen.cursist
+WHERE cursus = 'S02'
+  AND begindatum = '2019-04-12'
+;
 
 -- S3.6.
 -- Geef de namen van alle medewerkers en hun toelage.
 -- DROP VIEW IF EXISTS s3_6; CREATE OR REPLACE VIEW s3_6 AS                                                     -- [TEST]
 
-
+SELECT naam, toelage FROM medewerkers;
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------
 -- Met onderstaande query kun je je code testen. Zie bovenaan dit bestand
 -- voor uitleg.
 
-SELECT * FROM test_select('S3.1') AS resultaat
+SELECT *
+FROM test_select('S3.1') AS resultaat
 UNION
-SELECT * FROM test_select('S3.2') AS resultaat
+SELECT *
+FROM test_select('S3.2') AS resultaat
 UNION
-SELECT * FROM test_select('S3.3') AS resultaat
+SELECT *
+FROM test_select('S3.3') AS resultaat
 UNION
-SELECT * FROM test_select('S3.4') AS resultaat
+SELECT *
+FROM test_select('S3.4') AS resultaat
 UNION
-SELECT * FROM test_select('S3.5') AS resultaat
+SELECT *
+FROM test_select('S3.5') AS resultaat
 UNION
-SELECT * FROM test_select('S3.6') AS resultaat
+SELECT *
+FROM test_select('S3.6') AS resultaat
 ORDER BY resultaat;
 
