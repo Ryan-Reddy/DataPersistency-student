@@ -30,17 +30,29 @@
 -- Geef nummer, functie en geboortedatum van alle medewerkers die vóór 1980
 -- geboren zijn, en trainer of verkoper zijn.
 -- DROP VIEW IF EXISTS s4_1; CREATE OR REPLACE VIEW s4_1 AS                                                     -- [TEST]
-
+SELECT mnr, functie, gbdatum
+FROM medewerkers
+WHERE gbdatum < '1980-01-01';
 
 -- S4.2. 
 -- Geef de naam van de medewerkers met een tussenvoegsel (b.v. 'van der').
 -- DROP VIEW IF EXISTS s4_2; CREATE OR REPLACE VIEW s4_2 AS                                                     -- [TEST]
-
+SELECT naam
+FROM medewerkers
+WHERE naam LIKE '% %';
 
 -- S4.3. 
 -- Geef nu code, begindatum en aantal inschrijvingen (`aantal_inschrijvingen`) van alle
 -- cursusuitvoeringen in 2019 met minstens drie inschrijvingen.
 -- DROP VIEW IF EXISTS s4_3; CREATE OR REPLACE VIEW s4_3 AS                                                     -- [TEST]
+
+// TODO fix this:
+SELECT cursus
+-- , begindatum, COUNT()
+FROM inschrijvingen
+         JOIN cursussen ON inschrijvingen.cursus = cursussen.code
+GROUP BY cursus HAVING COUNT(cursus) >= 3
+;
 
 
 -- S4.4. 
