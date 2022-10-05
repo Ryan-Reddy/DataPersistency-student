@@ -46,12 +46,11 @@ WHERE naam LIKE '% %';
 -- cursusuitvoeringen in 2019 met minstens drie inschrijvingen.
 -- DROP VIEW IF EXISTS s4_3; CREATE OR REPLACE VIEW s4_3 AS                                                     -- [TEST]
 
-// TODO fix this:
-SELECT cursus
--- , begindatum, COUNT()
+SELECT cursus, COUNT(cursus), begindatum
 FROM inschrijvingen
          JOIN cursussen ON inschrijvingen.cursus = cursussen.code
-GROUP BY cursus HAVING COUNT(cursus) >= 3
+GROUP BY cursus, begindatum
+HAVING COUNT(cursus) >= 3
 ;
 
 
@@ -59,9 +58,11 @@ GROUP BY cursus HAVING COUNT(cursus) >= 3
 -- Welke medewerkers hebben een bepaalde cursus meer dan één keer gevolgd?
 -- Geef medewerkernummer en cursuscode.
 -- DROP VIEW IF EXISTS s4_4; CREATE OR REPLACE VIEW s4_4 AS                                                     -- [TEST]
+SELECT cursist
+FROM inschrijvingen
+GROUP BY cursist HAVING COUNT(*) > 1;
 
-
--- S4.5. 
+-- S4.5.
 -- Hoeveel uitvoeringen (`aantal`) zijn er gepland per cursus?
 -- Een voorbeeld van het mogelijke resultaat staat hieronder.
 --
@@ -71,7 +72,9 @@ GROUP BY cursus HAVING COUNT(cursus) >= 3
 --   JAV    | 4 
 --   OAG    | 2 
 -- DROP VIEW IF EXISTS s4_5; CREATE OR REPLACE VIEW s4_5 AS                                                     -- [TEST]
-
+SELECT cursus, COUNT(cursus)
+    FROM uitvoeringen
+        GROUP BY cursus;
 
 -- S4.6. 
 -- Bepaal hoeveel jaar leeftijdsverschil er zit tussen de oudste en de 
@@ -79,7 +82,10 @@ GROUP BY cursus HAVING COUNT(cursus) >= 3
 -- de medewerkers (`gemiddeld`).
 -- Je mag hierbij aannemen dat elk jaar 365 dagen heeft.
 -- DROP VIEW IF EXISTS s4_6; CREATE OR REPLACE VIEW s4_6 AS                                                     -- [TEST]
-
+SELECT MIN(gbdatum), MAX(gbdatum),
+       ((MAX(gbdatum) - MIN(gbdatum)) /365) AS "verschil",
+       AVG((current_date-gbdatum)/365) AS "gemiddeld"
+FROM medewerkers;
 
 -- S4.7. 
 -- Geef van het hele bedrijf een overzicht van het aantal medewerkers dat
@@ -87,26 +93,34 @@ GROUP BY cursus HAVING COUNT(cursus) >= 3
 -- krijgen (`commissie_medewerkers`), en hoeveel dat gemiddeld
 -- per verkoper is (`commissie_verkopers`).
 -- DROP VIEW IF EXISTS s4_7; CREATE OR REPLACE VIEW s4_7 AS                                                     -- [TEST]
-
-
+SELECT      count(*) AS "aantal_medewerkers",
+            round((SUM(comm))/COUNT(functie = 'verkoper')) AS "commissie_medewerkers",
+            round(AVG(comm))  AS "commissie_verkopers"
+                FROM medewerkers;
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------
 -- Met onderstaande query kun je je code testen. Zie bovenaan dit bestand
 -- voor uitleg.
 
-SELECT * FROM test_select('S4.1') AS resultaat
+SELECT *
+FROM test_select('S4.1') AS resultaat
 UNION
-SELECT * FROM test_select('S4.2') AS resultaat
+SELECT *
+FROM test_select('S4.2') AS resultaat
 UNION
-SELECT * FROM test_select('S4.3') AS resultaat
+SELECT *
+FROM test_select('S4.3') AS resultaat
 UNION
-SELECT * FROM test_select('S4.4') AS resultaat
+SELECT *
+FROM test_select('S4.4') AS resultaat
 UNION
-SELECT * FROM test_select('S4.5') AS resultaat
+SELECT *
+FROM test_select('S4.5') AS resultaat
 UNION
 SELECT 'S4.6 wordt niet getest: geen test mogelijk.' AS resultaat
 UNION
-SELECT * FROM test_select('S4.7') AS resultaat
+SELECT *
+FROM test_select('S4.7') AS resultaat
 ORDER BY resultaat;
 
 
