@@ -86,7 +86,7 @@ FROM inschrijvingen
          JOIN medewerkers
               ON medewerkers.mnr = inschrijvingen.cursist
 WHERE cursus = 'S02'
-  AND begindatum = '2019-04-12'
+  AND begindatum = to_date('2019-04-12', YYYY-DD-MM)
 ;
 
 -- S3.6.

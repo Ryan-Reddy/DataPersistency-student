@@ -72,7 +72,7 @@ WHERE naam = 'JANSEN'
 -- komende 2 maart. De cursus wordt gegeven in Leerdam door Nick Smit.
 -- Voeg deze gegevens toe.
 INSERT INTO uitvoeringen (cursus, begindatum, docent, locatie)
-VALUES ('S02', '2023-03-02', '7369', 'LEERDAM')
+VALUES ('S02', to_date('2023-03-02', YYYY-DD-MM), '7369', 'LEERDAM')
 ON CONFLICT DO NOTHING;
 -- [TEST]
 
@@ -82,7 +82,7 @@ ON CONFLICT DO NOTHING;
 -- Neem één van je collega-studenten aan als stagiair ('STAGIAIR') en
 -- voer zijn of haar gegevens in. Kies een personeelnummer boven de 8000.
 INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal)
-VALUES (8080, 'Reddy', 'R', 'STAGAIR', 7902, '1991-09-21', 5555)
+VALUES (8080, 'Reddy', 'R', 'STAGAIR', 7902, to_date('1991-09-21', YYYY-DD-MM), 5555)
 ON CONFLICT DO NOTHING;
 -- [TEST]
 
@@ -107,13 +107,13 @@ INSERT INTO cursussen (code, omschrijving, type, lengte)
 VALUES ('D&P', 'Data & Persistency', 'ALG', 1)
 ON CONFLICT DO NOTHING; -- [TEST]
 INSERT INTO uitvoeringen (cursus, begindatum, docent, locatie)
-VALUES ('D&P', '2022-12-12', 7902, 'LEERDAM'),
-       ('D&P', '2022-11-12', 7902, 'LEERDAM')
+VALUES ('D&P', to_date('2022-12-12', YYYY-DD-MM), 7902, 'LEERDAM'),
+       ('D&P', to_date('2022-11-12', YYYY-DD-MM), 7902, 'LEERDAM')
 ON CONFLICT DO NOTHING; -- [TEST]
 INSERT INTO inschrijvingen (cursist, cursus, begindatum)
-VALUES (7499, 'D&P', '2022-12-12'),
-       (7698, 'D&P', '2022-12-12'),
-       (7902, 'D&P', '2022-12-12')
+VALUES (7499, 'D&P', to_date('2022-12-12', YYYY-DD-MM)),
+       (7698, 'D&P', to_date('2022-12-12', YYYY-DD-MM)),
+       (7902, 'D&P', to_date('2022-12-12', YYYY-DD-MM))
 ON CONFLICT
     DO NOTHING;
 -- [TEST]
@@ -212,7 +212,7 @@ DELETE
 FROM uitvoeringen
 WHERE locatie = 'LEERDAM';
 INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm, afd)
-VALUES (7654, 'MARTENS', 'P', 'VERKOPER', 7698, '28-09-1976', 1250, 1400, 30);
+VALUES (7654, 'MARTENS', 'P', 'VERKOPER', 7698, to_date('28-09-1976', YYYY-DD-MM), 1250, 1400, 30);
 UPDATE medewerkers
 SET maandsal = 1600
 WHERE mnr = 7499;

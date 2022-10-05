@@ -32,7 +32,7 @@
 -- DROP VIEW IF EXISTS s4_1; CREATE OR REPLACE VIEW s4_1 AS                                                     -- [TEST]
 SELECT mnr, functie, gbdatum
 FROM medewerkers
-WHERE gbdatum < '1980-01-01';
+WHERE gbdatum < to_date('1980-01-01', YYYY-DD-MM);
 
 -- S4.2. 
 -- Geef de naam van de medewerkers met een tussenvoegsel (b.v. 'van der').

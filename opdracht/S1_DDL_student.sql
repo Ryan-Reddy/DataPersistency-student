@@ -44,7 +44,7 @@ ALTER TABLE medewerkers ADD geslacht CHAR(1) CONSTRAINT "m_geslacht_chk" CHECK (
 -- en valt direct onder de directeur.
 -- Voeg de nieuwe afdeling en de nieuwe medewerker toe aan de database.
 INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal)
-VALUES (8000, 'DONK', 'A', 'MANAGER', 7839, '1973-09-21', 2500);
+VALUES (8000, 'DONK', 'A', 'MANAGER', 7839, to_date('1973-09-21', YYYY-DD-MM), 2500);
 
 INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 VALUES (50, 'ONDERZOEK', 'ZWOLLE', 8000);
