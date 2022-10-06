@@ -41,7 +41,8 @@ WHERE cursus = 'JAV' OR cursus = 'XML'
 -- Geef de nummers van alle medewerkers die niet aan de afdeling 'OPLEIDINGEN'
 -- zijn verbonden.
 -- DROP VIEW IF EXISTS s5_2; CREATE OR REPLACE VIEW s5_2 AS                                                     -- [TEST]
-
+SELECT * FROM medewerkers
+WHERE afd != 20;
 
 -- S5.3.
 -- Geef de nummers van alle medewerkers die de Java-cursus niet hebben

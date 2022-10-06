@@ -44,7 +44,7 @@ ALTER TABLE medewerkers ADD geslacht CHAR(1) CONSTRAINT "m_geslacht_chk" CHECK (
 -- en valt direct onder de directeur.
 -- Voeg de nieuwe afdeling en de nieuwe medewerker toe aan de database.
 INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal)
-VALUES (8000, 'DONK', 'A', 'MANAGER', 7839, to_date('1973-09-21', YYYY-DD-MM), 2500);
+VALUES (8000, 'DONK', 'A', 'MANAGER', 7839, to_date('1973-09-21', 'YYYY-MM-DD'), 2500);
 
 INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 VALUES (50, 'ONDERZOEK', 'ZWOLLE', 8000);
@@ -63,21 +63,19 @@ CREATE SEQUENCE "afdelingen_sequence"
 --     MAXVALUE 90
     START 60
     OWNED BY afdelingen.anr;
--- DROP SEQUENCE "afdelingen_sequence"
 
 
 --   b) Voeg een aantal afdelingen toe aan de tabel, maak daarbij gebruik van
 --      de nieuwe sequence.
--- INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 INSERT INTO afdelingen (anr, naam, locatie, hoofd)
 VALUES
-(nextval('afdelingen_sequence'), 'ONDERZEEERS', 'ZEELAND', 8000),
-(nextval('afdelingen_sequence'), 'MIJNEN', 'GRONINGEN', 8000),
-(nextval('afdelingen_sequence'), 'VLIEGTUIGEN', 'LELYSTAD', 8000);
+    (nextval('afdelingen_sequence'), 'ONDERZEEERS', 'ZEELAND', 8000),
+    (nextval('afdelingen_sequence'), 'MIJNEN', 'GRONINGEN', 8000),
+    (nextval('afdelingen_sequence'), 'VLIEGTUIGEN', 'LELYSTAD', 8000);
 
 --   c) Op enig moment gaat het mis. De betreffende kolommen zijn te klein voor
 --      nummers van 3 cijfers. Los dit probleem op.
-ALTER TABLE afdelingen DROP CONSTRAINT "a_anr_chk";
+-- ALTER TABLE afdelingen DROP CONSTRAINT "a_anr_chk";
 
 ALTER TABLE afdelingen ADD CONSTRAINT "numeric" CHECK (anr >= 0 AND anr <= 999);
 
@@ -99,8 +97,8 @@ CREATE TABLE adressen (
                           ingangsdatum date,
                           einddatum date CHECK (einddatum > ingangsdatum), -- moet na de ingangsdatum liggen
                           telefoon varchar UNIQUE CHECK (LENGTH(telefoon) = 10),
+                          med_mnr int  REFERENCES medewerkers(mnr), --FOREIGN KEY
                           CONSTRAINT primary_key_adressen PRIMARY KEY (postcode, huisnummer, ingangsdatum),
-                          CONSTRAINT med_mnr FOREIGN KEY (mnr) REFERENCES medewerkers(mnr),
                           CONSTRAINT check_datums CHECK (ingangsdatum < einddatum)
 );
 
@@ -147,3 +145,4 @@ DELETE FROM afdelingen WHERE anr > 40;
 DELETE FROM medewerkers WHERE mnr < 7369 OR mnr > 7934;
 ALTER TABLE medewerkers DROP CONSTRAINT IF EXISTS m_geslacht_chk;
 ALTER TABLE medewerkers DROP COLUMN IF EXISTS geslacht;
+
