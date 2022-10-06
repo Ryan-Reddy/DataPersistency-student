@@ -43,14 +43,16 @@ ORDER BY begindatum;
 -- van alle S02-cursussen, met de achternaam van zijn cursusdocent (`docent`).
 DROP VIEW IF EXISTS s3_2; CREATE OR REPLACE VIEW s3_2 AS                                                     -- [TEST]
 
-SELECT cursist, code, medewerkers.naam as docent
+SELECT  code, medewerkers.naam as docent
 from inschrijvingen
          JOIN cursussen
               ON inschrijvingen.cursus = cursussen.code
          JOIN uitvoeringen
               ON cursussen.code = uitvoeringen.cursus
-         JOIN medewerkers
+         JOIN medewerkers AS docent
               ON uitvoeringen.docent = medewerkers.mnr
+		 JOIN medewerkers.naam AS cursist
+		 	  ON cursist = medewerkers.mnr
 WHERE cursussen.code = 'S02'
 ;
 
@@ -61,7 +63,7 @@ WHERE cursussen.code = 'S02'
 -- afdeling (`hoofd`).
 DROP VIEW IF EXISTS s3_3; CREATE OR REPLACE VIEW s3_3 AS                                                     -- [TEST]
 
-SELECT afd.naam AS afdeling, afd.locatie, mdw.naam AS hoofd
+SELECT afd.naam AS afdeling, mdw.naam AS hoofd
 FROM afdelingen AS afd
          JOIN medewerkers AS mdw
               ON afd.hoofd = mdw.mnr;
@@ -81,18 +83,19 @@ FROM medewerkers AS mdw
 -- Geef de namen van alle cursisten die staan ingeschreven voor de cursus S02 van 12 april 2019
 DROP VIEW IF EXISTS s3_5; CREATE OR REPLACE VIEW s3_5 AS                                                     -- [TEST]
 
-SELECT voorl, naam
+SELECT  naam
 FROM inschrijvingen
          JOIN medewerkers
               ON medewerkers.mnr = inschrijvingen.cursist
 WHERE cursus = 'S02'
-  AND begindatum = to_date('2019-04-12', YYYY-DD-MM)
+  AND begindatum = to_date('2019-04-12', 'YYYY-MM-DD')
 ;
 
 -- S3.6.
 -- Geef de namen van alle medewerkers en hun toelage.
 DROP VIEW IF EXISTS s3_6; CREATE OR REPLACE VIEW s3_6 AS                                                     -- [TEST]
 -- TODO write JOIN medewerkers.salaris and schalen.toelage
+
 SELECT naam, toelage FROM medewerkers;
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------

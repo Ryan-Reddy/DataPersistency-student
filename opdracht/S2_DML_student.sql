@@ -197,18 +197,18 @@ ORDER BY resultaat;
 
 
 -- Draai alle wijzigingen terug om conflicten in komende opdrachten te voorkomen.UPDATE medewerkers SET afd = NULL WHERE mnr < 7369 OR mnr > 7934;
--- UPDATE afdelingen SET hoofd = NULL WHERE anr > 40;
--- DELETE FROM afdelingen WHERE anr > 40;
--- DELETE FROM medewerkers WHERE mnr < 7369 OR mnr > 7934;
--- DELETE FROM inschrijvingen WHERE cursus = 'D&P';
--- DELETE FROM uitvoeringen WHERE cursus = 'D&P';
--- DELETE FROM cursussen WHERE code = 'D&P';
--- DELETE FROM uitvoeringen WHERE locatie = 'LEERDAM';
--- INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm, afd)
--- VALUES (7654, 'MARTENS', 'P', 'VERKOPER', 7698, '28-09-1976', 1250, 1400, 30);
--- UPDATE medewerkers SET maandsal = 1600 WHERE mnr = 7499;
--- UPDATE medewerkers SET maandsal = 1250 WHERE mnr = 7521;
--- UPDATE medewerkers SET maandsal = 2850 WHERE mnr = 7698;
--- UPDATE medewerkers SET maandsal = 1500 WHERE mnr = 7844;
--- UPDATE medewerkers SET maandsal = 800 WHERE mnr = 7900;
+UPDATE afdelingen SET hoofd = NULL WHERE anr > 40;
+DELETE FROM afdelingen WHERE anr > 40;
+DELETE FROM medewerkers WHERE mnr < 7369 OR mnr > 7934;
+DELETE FROM inschrijvingen WHERE cursus = 'D&P';
+DELETE FROM uitvoeringen WHERE cursus = 'D&P';
+DELETE FROM cursussen WHERE code = 'D&P';
+DELETE FROM uitvoeringen WHERE locatie = 'LEERDAM';
+INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm, afd)
+VALUES (7654, 'MARTENS', 'P', 'VERKOPER', 7698, '28-09-1976', 1250, 1400, 30);
+UPDATE medewerkers SET maandsal = 1600 WHERE mnr = 7499;
+UPDATE medewerkers SET maandsal = 1250 WHERE mnr = 7521;
+UPDATE medewerkers SET maandsal = 2850 WHERE mnr = 7698;
+UPDATE medewerkers SET maandsal = 1500 WHERE mnr = 7844;
+UPDATE medewerkers SET maandsal = 800 WHERE mnr = 7900;
 
