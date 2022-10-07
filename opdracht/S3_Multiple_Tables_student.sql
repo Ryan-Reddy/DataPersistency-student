@@ -43,20 +43,17 @@ ORDER BY begindatum;
 -- van alle S02-cursussen, met de achternaam van zijn cursusdocent (`docent`).
 DROP VIEW IF EXISTS s3_2; CREATE OR REPLACE VIEW s3_2 AS                                                     -- [TEST]
 
-SELECT  code, medewerkers.naam as docent
-from inschrijvingen
+SELECT DISTINCT cursist.naam AS cursist, docent.naam AS docent FROM inschrijvingen
+JOIN medewerkers AS cursist
+	ON cursist = cursist.mnr
          JOIN cursussen
               ON inschrijvingen.cursus = cursussen.code
          JOIN uitvoeringen
-              ON cursussen.code = uitvoeringen.cursus
-         JOIN medewerkers AS docent
-              ON uitvoeringen.docent = medewerkers.mnr
-		 JOIN medewerkers.naam AS cursist
-		 	  ON cursist = medewerkers.mnr
-WHERE cursussen.code = 'S02'
+              ON cursussen.code = uitvoeringen.cursus AND inschrijvingen.begindatum = uitvoeringen.begindatum -- begindatum moet ook vergeleken, 
+JOIN medewerkers AS docent
+	ON uitvoeringen.docent = docent.mnr
+WHERE inschrijvingen.cursus = 'S02'
 ;
-
-
 
 -- S3.3.
 -- Geef elke afdeling (`afdeling`) met de naam van het hoofd van die
@@ -94,9 +91,10 @@ WHERE cursus = 'S02'
 -- S3.6.
 -- Geef de namen van alle medewerkers en hun toelage.
 DROP VIEW IF EXISTS s3_6; CREATE OR REPLACE VIEW s3_6 AS                                                     -- [TEST]
--- TODO write JOIN medewerkers.salaris and schalen.toelage
 
-SELECT naam, toelage FROM medewerkers;
+SELECT medewerkers.naam, schalen.toelage FROM medewerkers
+	JOIN schalen 
+		ON medewerkers.maandsal BETWEEN ondergrens AND bovengrens;
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------
 -- Met onderstaande query kun je je code testen. Zie bovenaan dit bestand
