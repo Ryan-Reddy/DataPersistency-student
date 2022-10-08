@@ -32,21 +32,20 @@
 -- Welke medewerkers hebben zowel de Java als de XML cursus
 -- gevolgd? Geef hun personeelsnummers.
 DROP VIEW IF EXISTS s5_1; CREATE OR REPLACE VIEW s5_1 AS                                                     -- [TEST]
-SELECT DISTINCT cursist
-FROM inschrijvingen
-WHERE cursist IN (SELECT DISTINCT cursist FROM inschrijvingen WHERE cursus = 'JAV' OR cursus = 'XML')
+
+SELECT DISTINCT xml.cursist
+FROM 
+(SELECT DISTINCT cursist FROM inschrijvingen WHERE cursus = 'XML') AS xml
+JOIN
+(SELECT DISTINCT cursist FROM inschrijvingen WHERE cursus = 'JAV') AS jav
+	ON xml.cursist = jav.cursist
 ;
-
--- 	SELECT DISTINCT cursist FROM inschrijvingen WHERE cursus = 'JAV' OR cursus = 'XML'
--- 	;
-
-SELECT  * FROM inschrijvingen;
-
-
+ 	
 -- S5.2.
 -- Geef de nummers van alle medewerkers die niet aan de afdeling 'OPLEIDINGEN'
 -- zijn verbonden.
-DROP VIEW IF EXISTS s5_2; CREATE OR REPLACE VIEW s5_2 AS                                                     -- [TEST]
+DROP VIEW IF EXISTS s5_2; CREATE OR REPLACE VIEW s5_2 AS                                                     -- [TEST]\
+
 SELECT mnr FROM medewerkers
 WHERE afd NOT IN (SELECT anr 
 	FROM afdelingen
@@ -59,24 +58,16 @@ WHERE afd NOT IN (SELECT anr
 -- gevolgd.
 DROP VIEW IF EXISTS s5_3; CREATE OR REPLACE VIEW s5_3 AS                                                     -- [TEST]
 
-SELECT cursist
-FROM inschrijvingen 
-WHERE cursus != 'JAV'
-
--- (SELECT * FROM inschrijvingen WHERE cursus = 'JAV')
+SELECT mnr FROM medewerkers
+		WHERE mnr NOT IN (
+			SELECT DISTINCT cursist FROM inschrijvingen WHERE cursus = 'JAV')
 ;
 
--- SELECT * FROM inschrijvingen WHERE cursus != 'JAV'
-
-
-
-
-
-
-
 -- S5.4.
+
 -- a. Welke medewerkers hebben ondergeschikten? Geef hun naam.
 DROP VIEW IF EXISTS s5_4a; CREATE OR REPLACE VIEW s5_4a AS                                                   -- [TEST]
+
 SELECT naam FROM medewerkers
 WHERE mnr IN (
 	SELECT DISTINCT chef FROM medewerkers
@@ -84,45 +75,71 @@ WHERE mnr IN (
 
 -- b. En welke medewerkers hebben geen ondergeschikten? Geef wederom de naam.
 DROP VIEW IF EXISTS s5_4b; CREATE OR REPLACE VIEW s5_4b AS                                                   -- [TEST]
+
 SELECT naam FROM medewerkers
-WHERE mnr NOT IN (
-	SELECT chef FROM medewerkers
-)
-;
+	WHERE mnr 
+		NOT IN (
+		SELECT DISTINCT chef FROM medewerkers WHERE chef IS NOT NULL);
 
 -- S5.5.
 -- Geef cursuscode en begindatum van alle uitvoeringen van programmeercursussen
 -- ('BLD') in 2020.
 DROP VIEW IF EXISTS s5_5; CREATE OR REPLACE VIEW s5_5 AS                                                     -- [TEST]
+
 SELECT cursussen.code, begindatum FROM uitvoeringen 
-JOIN cursussen
-	ON uitvoeringen.cursus = cursussen.code
-WHERE begindatum BETWEEN to_date('2020-01-01', 'YYYY-DD-MM') 
-	AND to_date('2021-01-01', 'YYYY-DD-MM')
-	AND cursus IN (SELECT code FROM cursussen WHERE "type" = 'BLD');
+	JOIN cursussen
+		ON uitvoeringen.cursus = cursussen.code
+	WHERE begindatum BETWEEN to_date('2020-01-01', 'YYYY-DD-MM') 
+		AND to_date('2021-01-01', 'YYYY-DD-MM')
+		AND cursus IN (SELECT code FROM cursussen WHERE "type" = 'BLD');
 
 -- S5.6.
 -- Geef van alle cursusuitvoeringen: de cursuscode, de begindatum en het
 -- aantal inschrijvingen (`aantal_inschrijvingen`). Sorteer op begindatum.
 DROP VIEW IF EXISTS s5_6; CREATE OR REPLACE VIEW s5_6 AS                                                     -- [TEST]
--- SELECT cursus, begindatum, COUNT(*) FROM uitvoeringen
-;
 
-SELECT * FROM inschrijvingen;
+SELECT DISTINCT cursus, begindatum, (SELECT COUNT(cursist) FROM inschrijvingen AS insch 
+									 WHERE uita.cursus = insch.cursus
+									 AND uita.begindatum = insch.begindatum
+									) AS aantal_inschrijvingen 
+							FROM uitvoeringen AS uita;
 
 -- S5.7.
 -- Geef voorletter(s) en achternaam van alle trainers die ooit tijdens een
 -- algemene ('ALG') cursus hun eigen chef als cursist hebben gehad.
 DROP VIEW IF EXISTS s5_7; CREATE OR REPLACE VIEW s5_7 AS                                                     -- [TEST]
-SELECT * FROM medewerkers
-;
+
+SELECT mnr, chef, voorl, naam FROM medewerkers AS medw 
+		JOIN inschrijvingen AS insch ON 
+		medw.chef = (SELECT inschrijvingen.docent FROM inschrijvingen
+					 JOIN uitvoeringen
+					 ON uitvoeringen.cursus = inschrijvingen.cursus AND uitvoeringen.begindatum = inschrijvingen.begindatum  
+			insch.docent)
+		
+				 	WHERE cursus
+					IN (SELECT code FROM cursussen AS curs
+						WHERE type = 'ALG' ); 	--- ALG cursus - zijn er twee.. S02 and OAG
+
+
+
+-- JOIN cursussen AS curs ON medw.chef = curs.docent;
+-- TODO: write the own chef as cursist part
+-- SELECT mnr, chef FROM medewerkers 				- grab chef and mnr
+
+-- SELECT * FROM inschrijvingen;
+-- SELECT * FROM inschrijvingen;
+-- SELECT * FROM uitvoeringen;
+-- SELECT * FROM uitvoeringen;
+-- SELECT * FROM cursussen WHERE type = 'ALG';
+-- SELECT * FROM cursussen WHERE type = 'ALG';
+
 
 -- S5.8.
 -- Geef de naam van de medewerkers die nog nooit een cursus hebben gegeven.
 DROP VIEW IF EXISTS s5_8; CREATE OR REPLACE VIEW s5_8 AS                                                     -- [TEST]
-SELECT * FROM medewerkers
-;
 
+SELECT naam FROM medewerkers WHERE mnr NOT IN (SELECT DISTINCT docent FROM uitvoeringen WHERE docent IS NOT NULL)
+;
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------
 -- Met onderstaande query kun je je code testen. Zie bovenaan dit bestand
