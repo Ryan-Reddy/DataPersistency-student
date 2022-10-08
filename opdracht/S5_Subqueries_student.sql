@@ -51,8 +51,6 @@ WHERE afd NOT IN (SELECT anr
 	FROM afdelingen
 	WHERE naam = 'OPLEIDINGEN');
 
-
-
 -- S5.3.
 -- Geef de nummers van alle medewerkers die de Java-cursus niet hebben
 -- gevolgd.
@@ -109,30 +107,16 @@ SELECT DISTINCT cursus, begindatum, (SELECT COUNT(cursist) FROM inschrijvingen A
 -- algemene ('ALG') cursus hun eigen chef als cursist hebben gehad.
 DROP VIEW IF EXISTS s5_7; CREATE OR REPLACE VIEW s5_7 AS                                                     -- [TEST]
 
-SELECT mnr, chef, voorl, naam FROM medewerkers AS medw 
-		JOIN inschrijvingen AS insch ON 
-		medw.chef = (SELECT inschrijvingen.docent FROM inschrijvingen
-					 JOIN uitvoeringen
-					 ON uitvoeringen.cursus = inschrijvingen.cursus AND uitvoeringen.begindatum = inschrijvingen.begindatum  
-			insch.docent)
-		
-				 	WHERE cursus
-					IN (SELECT code FROM cursussen AS curs
-						WHERE type = 'ALG' ); 	--- ALG cursus - zijn er twee.. S02 and OAG
+-- SELECT cursist, cursus, begindatum FROM inschrijvingen; 				-- grab course data
+-- SELECT cursus, begindatum, docent FROM uitvoeringen;					-- grab teacher per class
+-- SELECT mnr, chef FROM medewerkers 									-- grab chef and mnr
+-- SELECT insch.cursist, medw.naam, insch.cursus, insch.begindatum, uitv.docent FROM inschrijvingen AS insch
 
-
-
--- JOIN cursussen AS curs ON medw.chef = curs.docent;
--- TODO: write the own chef as cursist part
--- SELECT mnr, chef FROM medewerkers 				- grab chef and mnr
-
--- SELECT * FROM inschrijvingen;
--- SELECT * FROM inschrijvingen;
--- SELECT * FROM uitvoeringen;
--- SELECT * FROM uitvoeringen;
--- SELECT * FROM cursussen WHERE type = 'ALG';
--- SELECT * FROM cursussen WHERE type = 'ALG';
-
+SELECT medw.voorl, medw.naam FROM inschrijvingen AS insch
+	JOIN uitvoeringen AS uitv ON insch.cursus = uitv.cursus AND insch.begindatum = uitv.begindatum
+	JOIN medewerkers AS medw ON insch.cursist = medw.mnr
+	WHERE uitv.docent = medw.chef 
+	AND insch.cursus IN (SELECT code FROM cursussen WHERE type = 'ALG');
 
 -- S5.8.
 -- Geef de naam van de medewerkers die nog nooit een cursus hebben gegeven.
