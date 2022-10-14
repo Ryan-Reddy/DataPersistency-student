@@ -122,54 +122,17 @@ FROM uitvoeringen AS uita;
 DROP VIEW IF EXISTS s5_7;
 CREATE OR REPLACE VIEW s5_7 AS -- [TEST]
 
--- SELECT cursist, cursus, begindatum FROM inschrijvingen; 				-- grab course data
--- SELECT * FROM uitvoeringen;					-- grab teacher per class
--- SELECT mnr, chef FROM medewerkers 									-- grab chef and mnr
--- SELECT insch.cursist, medw.naam, insch.cursus, insch.begindatum, uitv.docent FROM inschrijvingen AS insch
-
-SELECT medw.voorl, medw.naam
-FROM inschrijvingen AS insch
-         JOIN uitvoeringen AS uitv ON insch.cursus = uitv.cursus AND insch.begindatum = uitv.begindatum
-         JOIN medewerkers AS medw ON insch.cursist = medw.mnr
-WHERE uitv.mnr = medw.chef
-  AND insch.cursus IN (SELECT code FROM cursussen WHERE type = 'ALG');
-
---// TODO cursist is nu docent
-
-SELECT DISTINCT mdw.chef       AS chefCursist,
-                mdw.mnr        AS employeeofchefcursist,
-                insch.cursus,
-                insch.begindatum,
-                mdwDocent.mnr  AS docentmdw,
-                mdwDocent.chef AS docentChef,
-                mdwDocent.voorl,
+SELECT DISTINCT mdwDocent.voorl,
                 mdwDocent.naam
 FROM medewerkers AS mdwDocent -- grab mdw-chef relation
          JOIN inschrijvingen AS insch
               ON insch.cursus IN (SELECT code FROM cursussen WHERE type = 'ALG') -- only chefs -> ALG cursusist
-         JOIN uitvoeringen AS uitv ON uitv.docent = mnr -- Uitvoeringen where mdw = docent
+
          JOIN medewerkers AS mdw ON insch.cursist = mdw.chef -- grab only cursisten that now chef
-;
-
-
-SELECT *
-FROM (SELECT DISTINCT mdw.chef       AS chefCursist,
-                      mdw.mnr        AS employeeofchefcursist,
-                      insch.cursus,
-                      insch.begindatum,
-                      mdwDocent.mnr  AS docentmdw,
-                      mdwDocent.chef AS docentChef, -- chef of the teacher
-                      mdwDocent.voorl,
-                      mdwDocent.naam
-      FROM medewerkers AS mdwDocent -- grab mdw-chef relation
-
-               JOIN inschrijvingen AS insch
-                    ON insch.cursus IN (SELECT code FROM cursussen WHERE type = 'ALG') -- only chefs -> ALG cursusist
-               JOIN uitvoeringen AS uitv ON uitv.docent = mnr -- Uitvoeringen where mdw = docent
-               JOIN medewerkers AS mdw ON insch.cursist = mdw.chef -- grab only cursisten that now chef
-     )
-         AS something
-WHERE docentchef = mdwDocent
+         JOIN uitvoeringen AS uitv
+              ON uitv.docent = mdwDocent.mnr -- Uitvoeringen where mdw = docent
+                  AND mdw.mnr = uitv.docent
+                  AND insch.cursus = uitv.cursus AND insch.begindatum = uitv.begindatum;
 
 
 -- S5.8.
